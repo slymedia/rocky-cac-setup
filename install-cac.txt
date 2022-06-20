@@ -1,0 +1,46 @@
+yum install p11-kit-devel
+dnf group install "Development Tools"
+yum -y install openssl-devel
+yum -y install libxml2 libxml2-devel
+yum -y install lz4 lz4-devel
+yum -y install gnutls gnutls-devel gnutls-utils
+yum -y install opensc
+yum -y install esc
+
+cd /usr/local/src
+wget http://cackey.rkeene.org/download/0.7.5/cackey-0.7.5-1.x86_64.rpm
+wget https://www.infradead.org/openconnect/download/openconnect-8.20.tar.gz
+
+rpm -ivh cackey-0.7.5-1.x86_64.rpm
+echo "module:/usr/lib64/libcackey.so" > /etc/pkcs11/modules/libcackey.module
+# Alternatively the above line can go in ~/.pkcs11/pkcs11.conf
+
+
+mkdir -p /etc/vpnc/
+cd /etc/vpnc
+wget https://gitlab.com/openconnect/vpnc-scripts/raw/master/vpnc-script
+chmod 755 /etc/vpnc/vpnc-script
+
+cd /usr/local/src/
+tar -zxvf openconnect-8.20.tar.gz
+cd /usr/local/src/openconnect-8.10
+./configure
+make
+make install
+
+# Manually install DoD certs in firefox (optional)
+# reference https://militarycac.com/linux.htm
+
+#cd /usr/local/src
+#wget https://militarycac.com/maccerts/AllCerts.zip
+
+# Install certs on System
+
+wget https://gist.githubusercontent.com/AfroThundr3007730/ba99753dda66fc4abaf30fb5c0e5d012/raw/089064c16b58a28cbeda8a88b465dd1a6080884e/add-dod-certs.sh
+
+chmod 750 add-dod-certs.sh
+./add-dod-certs.sh
+
+update-crypto-policies --set LEGACY
+# i received this error when i tried to do it without:
+# SSL connection failure: The Diffie-Hellman prime sent by the server is not acceptable (not long enough
